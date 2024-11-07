@@ -76,12 +76,18 @@ pipeline {
                            steps {
                                echo 'Building Docker Image...'
                                script {
-                                   dockerImage = docker.build("${registry}:${IMAGE_TAG}")
+                                dir('5Gamix-GestionSkieur-master') {
+                                            sh """
+                                                docker build -t ${registry}:${IMAGE_TAG} .
+                                            """
+                                        }
+
                                    echo "Docker image built: ${dockerImage.imageName()}"
                                }
                                echo 'Docker Build Image stage completed.'
                            }
                        }
+
 
                        stage('Login to Docker') {
                            steps {
