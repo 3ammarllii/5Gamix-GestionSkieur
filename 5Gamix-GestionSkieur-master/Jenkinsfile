@@ -56,11 +56,13 @@ pipeline {
                         echo 'Deployment to Nexus completed.'
                     }
                 }
-        /*stage('Test') {
+        stage('Test') {
             steps {
+             dir('5Gamix-GestionSkieur-master') {
                 sh 'mvn test'
+                }
             }
-        }*/
+        }
     }
     post {
         success {
