@@ -72,6 +72,44 @@ pipeline {
                         echo 'Deployment to Nexus completed.'
                     }
                 }
+               stage('Build Image') {
+                           steps {
+                               echo 'Building Docker Image...'
+                               script {
+                                   dockerImage = docker.build("${registry}:${IMAGE_TAG}")
+                                   echo "Docker image built: ${dockerImage.imageName()}"
+                               }
+                               echo 'Docker Build Image stage completed.'
+                           }
+                       }
+
+                       stage('Login to Docker') {
+                           steps {
+                               echo 'Logging to DockerHub...'
+                               script {
+                                   withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                                   dir('5Gamix-GestionSkieur-master') {
+                                       sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                                       }
+                                       echo 'DockerHub login successful.'
+                                   }
+                               }
+                               echo 'Login to DockerHub stage completed.'
+                           }
+                       }
+
+                       stage('Push to DockerHub') {
+                           steps {
+                               echo 'Pushing to DockerHub...'
+                               script {
+                               dir('5Gamix-GestionSkieur-master') {
+                                   sh "docker push ${dockerImage.imageName()}"
+                                   }
+                                   echo "Docker image pushed: ${dockerImage.imageName()}"
+                               }
+                               echo 'Push to DockerHub stage completed.'
+                           }
+                       }
 
     }
     post {
