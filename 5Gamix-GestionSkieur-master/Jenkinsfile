@@ -1,34 +1,31 @@
 pipeline {
     agent any
     stages {
-            stage('Checkout') {
-                steps {
-                    git branch: 'master',
-                    url: 'https://github.com/malieo1/5ARCTIC5-GestionSkieur.git';
+        stage('Checkout') {
+            steps {
+                git branch: 'SamiGuezmir',
+                    url: 'https://github.com/3ammarllii/5Gamix-GestionSkieur.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                dir('5Gamix-GestionSkieur-master') {
+                    sh 'mvn install -Dmaven.test.skip=true'
                 }
             }
-             stage('Build') {
-                  steps {
-                      sh 'mvn install -Dmaven.test.skip=true'
-                  }
-             }
-             stage('Test') {
-                         steps {
-                             sh 'mvn test'
-                         }
-                     }
-
-
-                 }
-
-                 post {
-                     success {
-                         echo 'Build finished successfully!'
-                     }
-                     failure {
-                         echo 'Build failed!'
-                     }
-                 }
-
-
+        }
+        /*stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }*/
+    }
+    post {
+        success {
+            echo 'Build finished successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
 }
