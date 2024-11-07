@@ -26,21 +26,21 @@ pipeline {
             }
         }
         stage('Test') {
-            steps {
-                dir('5Gamix-GestionSkieur-master') {
-                    sh 'mvn test'
+                    steps {
+                     dir('5Gamix-GestionSkieur-master') {
+                        sh 'mvn test'
+                        }
+                    }
                 }
-            }
-        }
-        stage('Package') {
-            steps {
-                echo 'Packaging Stage...'
-                dir('5Gamix-GestionSkieur-master') {
-                    sh 'mvn package'
-                }
-                echo 'Package completed.'
-            }
-        }
+                stage('Package') {
+                                    steps {
+                                        echo 'Packaging Stage...'
+                                        dir('5Gamix-GestionSkieur-master') {
+                                            sh 'mvn package'
+                                        }
+                                        echo 'Package completed.'
+                                    }
+                                }
         stage('Build') {
             steps {
                 dir('5Gamix-GestionSkieur-master') {
@@ -50,64 +50,66 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
+
                 echo 'Starting SonarQube Analysis...'
 
                 withSonarQubeEnv(SONARQUBE_ENV) {
                     echo 'Running SonarQube analysis...'
                     dir('5Gamix-GestionSkieur-master') {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=sonar'
-                    }
+                                        sh 'mvn sonar:sonar -Dsonar.projectKey=sonar'
+                                    }
+
                 }
                 echo 'SonarQube analysis completed.'
             }
         }
         stage('Deploy to Nexus') {
-            steps {
-                echo 'Deploying to Nexus...'
-                dir('5Gamix-GestionSkieur-master') {
-                    sh "mvn deploy -Dmaven.test.skip=true -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8081/repository/SamiGuezmir5Gamix/"
-                }
-                echo 'Deployment to Nexus completed.'
-            }
-        }
-        stage('Build Image') {
-            steps {
-                echo 'Building Docker Image...'
-                script {
-                    dockerImage = docker.build("${registry}:${IMAGE_TAG}")
-                    echo "Docker image built: ${dockerImage.imageName()}"
-                }
-                echo 'Docker Build Image stage completed.'
-            }
-        }
-
-        stage('Login to Docker') {
-            steps {
-                echo 'Logging to DockerHub...'
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    steps {
+                        echo 'Deploying to Nexus...'
                         dir('5Gamix-GestionSkieur-master') {
-                            sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
-                        }
-                        echo 'DockerHub login successful.'
+       sh "mvn deploy -Dmaven.test.skip=true -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8081/repository/SamiGuezmir5Gamix/"
+                                                            }
+                        echo 'Deployment to Nexus completed.'
                     }
                 }
-                echo 'Login to DockerHub stage completed.'
-            }
-        }
+               stage('Build Image') {
+                           steps {
+                               echo 'Building Docker Image...'
+                               script {
+                                   dockerImage = docker.build("${registry}:${IMAGE_TAG}")
+                                   echo "Docker image built: ${dockerImage.imageName()}"
+                               }
+                               echo 'Docker Build Image stage completed.'
+                           }
+                       }
 
-        stage('Push to DockerHub') {
-            steps {
-                echo 'Pushing to DockerHub...'
-                script {
-                    dir('5Gamix-GestionSkieur-master') {
-                        sh "docker push ${dockerImage.imageName()}"
-                    }
-                    echo "Docker image pushed: ${dockerImage.imageName()}"
-                }
-                echo 'Push to DockerHub stage completed.'
-            }
-        }
+                       stage('Login to Docker') {
+                           steps {
+                               echo 'Logging to DockerHub...'
+                               script {
+                                   withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                                   dir('5Gamix-GestionSkieur-master') {
+                                       sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                                       }
+                                       echo 'DockerHub login successful.'
+                                   }
+                               }
+                               echo 'Login to DockerHub stage completed.'
+                           }
+                       }
+
+                       stage('Push to DockerHub') {
+                           steps {
+                               echo 'Pushing to DockerHub...'
+                               script {
+                               dir('5Gamix-GestionSkieur-master') {
+                                   sh "docker push ${dockerImage.imageName()}"
+                                   }
+                                   echo "Docker image pushed: ${dockerImage.imageName()}"
+                               }
+                               echo 'Push to DockerHub stage completed.'
+                           }
+                       }
 
     }
     post {
