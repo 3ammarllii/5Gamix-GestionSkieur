@@ -110,6 +110,33 @@ pipeline {
                                        }
                                    }
                                }
+                               stage('Deploy with Docker Compose') {
+                                           steps {
+                                               echo 'Docker Compose Deployment...'
+                                               script {
+                                                   echo 'Stopping existing containers...'
+                                                   dir('5Gamix-GestionSkieur-master') {
+                                                   sh 'docker compose down || true'
+                                                   }
+
+                                                   echo 'Starting containers...'
+                                                   dir('5Gamix-GestionSkieur-master') {
+                                                   sh 'docker compose up -d'
+                                                   }
+
+                                                   echo 'Waiting for services to initialize...'
+                                                   dir('5Gamix-GestionSkieur-master') {
+                                                   sh 'sleep 30'
+                                                   }
+
+                                                   echo 'Verifying deployment status...'
+                                                   dir('5Gamix-GestionSkieur-master') {
+                                                   sh 'docker compose ps'
+                                                   }
+                                               }
+                                               echo 'Deploy with Docker Compose stage completed.'
+                                           }
+                                       }
 
     }
     post {
