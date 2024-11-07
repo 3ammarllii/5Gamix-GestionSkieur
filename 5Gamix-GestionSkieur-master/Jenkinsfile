@@ -72,21 +72,17 @@ pipeline {
                         echo 'Deployment to Nexus completed.'
                     }
                 }
-               stage('Build Image') {
-                           steps {
-                               echo 'Building Docker Image...'
-                               script {
-                                dir('5Gamix-GestionSkieur-master') {
-                                            sh """
-                                                docker build -t ${registry}:${IMAGE_TAG} .
-                                            """
-                                        }
 
-                                   echo "Docker image built: ${dockerImage.imageName()}"
-                               }
-                               echo 'Docker Build Image stage completed.'
-                           }
-                       }
+                stage('Build Docker Image') {
+                            steps {
+                                script {
+                                    echo 'Building Docker image...'
+                                    dir('5Gamix-GestionSkieur-master') {
+                                    sh "docker build -t ${registry}:${IMAGE_TAG} ."
+                                    }
+                                }
+                            }
+                        }
 
 
                        stage('Login to Docker') {
