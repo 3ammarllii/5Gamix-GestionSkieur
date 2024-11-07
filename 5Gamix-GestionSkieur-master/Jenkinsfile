@@ -42,11 +42,20 @@ pipeline {
                     dir('5Gamix-GestionSkieur-master') {
                                         sh 'mvn sonar:sonar -Dsonar.projectKey=sonar'
                                     }
-                    
+
                 }
                 echo 'SonarQube analysis completed.'
             }
         }
+        stage('Deploy to Nexus') {
+                    steps {
+                        echo 'Deploying to Nexus...'
+                        dir('5Gamix-GestionSkieur-master') {
+       sh "mvn deploy -Dmaven.test.skip=true -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8081/repository/SamiGuezmir5Gamix/"
+                                                            }
+                        echo 'Deployment to Nexus completed.'
+                    }
+                }
         /*stage('Test') {
             steps {
                 sh 'mvn test'
