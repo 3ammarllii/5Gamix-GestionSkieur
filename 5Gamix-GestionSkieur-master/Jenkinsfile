@@ -25,6 +25,22 @@ pipeline {
                 echo 'Clean completed.'
             }
         }
+        stage('Test') {
+                    steps {
+                     dir('5Gamix-GestionSkieur-master') {
+                        sh 'mvn test'
+                        }
+                    }
+                }
+                stage('Package') {
+                                    steps {
+                                        echo 'Packaging Stage...'
+                                        dir('5Gamix-GestionSkieur-master') {
+                                            sh 'mvn package'
+                                        }
+                                        echo 'Package completed.'
+                                    }
+                                }
         stage('Build') {
             steps {
                 dir('5Gamix-GestionSkieur-master') {
@@ -56,13 +72,7 @@ pipeline {
                         echo 'Deployment to Nexus completed.'
                     }
                 }
-        stage('Test') {
-            steps {
-             dir('5Gamix-GestionSkieur-master') {
-                sh 'mvn test'
-                }
-            }
-        }
+
     }
     post {
         success {
