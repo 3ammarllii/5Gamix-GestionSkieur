@@ -34,10 +34,15 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
+
                 echo 'Starting SonarQube Analysis...'
+
                 withSonarQubeEnv(SONARQUBE_ENV) {
                     echo 'Running SonarQube analysis...'
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=sonar'
+                    dir('5Gamix-GestionSkieur-master') {
+                                        sh 'mvn sonar:sonar -Dsonar.projectKey=sonar'
+                                    }
+                    
                 }
                 echo 'SonarQube analysis completed.'
             }
